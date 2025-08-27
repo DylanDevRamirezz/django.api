@@ -1,0 +1,22 @@
+{% extends "tienda/base.html" %}
+
+{%block tittle%} Inicio {%endblock%}
+
+{%block content%}
+<h1>Pedidos</h1>
+<ul>
+    {%for ped in Pedidos %}
+    <li>
+        <a href="{% url 'tienda:pedido' p.pk %}">
+            pedido {{ped.id}}
+            -Cliente:{{ped.cliente.nombre}}
+            -Estado:{{ped.estado}}
+            -Fecha:{{ped.fecha|date"d/m/y"}}
+            -Productos: {{ped.productos.count}}
+        </a>
+    </li>
+    {%empty%%}
+    <li>No hay Pedidos Registrados</li>
+    {% endfor %}
+</ul>
+{%endblock %}
