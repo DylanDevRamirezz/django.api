@@ -41,3 +41,40 @@ class Tienda(models.Model):
     nombreComercial = models.CharField(max_length=124, null=False)
     descripcion = models.TextField()
     administrador = models.ForeignKey(Usuario, related_name='admin', on_delete=models.PROTECT)
+
+class Producto(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    precio = models.DecimalField(max_digits=8, decimal_places=2)
+
+    def _str_(self):
+        return self.nombre
+
+
+class Cliente(models.Model):
+    nombre = models.CharField(max_length=120)
+    correo = models.EmailField(unique=True)
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+    activo = models.BooleanField(default=True)
+
+    def _str_(self):
+        return f"{self.nombre} <{self.correo}>"
+
+
+class Pedido(models.Model):
+    ESTADOS = [
+        ("CREADO", "Creado"),
+        ("PAGADO", "Pagado"),
+        ("ENVIADO", "Enviado"),
+        ("CERRADO", "Cerrado"),
+    ]
+
+    cliente = models.ForeignKey(
+        Cliente, on_delete=models.CASCADE, related_name="pedidos"
+    )
+    productos = models.ManyToManyField(Producto, related_name="pedidos")
+    estado = models.CharField(max_length=10, choices=ESTADOS, default="CREADO")
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return f"Pedido #{self.pk} - {self.cliente.nombre} ({self.estado})"
