@@ -1,0 +1,33 @@
+{% extends "tienda/base.html" %}
+
+{% block title %} {{ cliente.nombre }} {% endblock %}
+
+{% block content %}
+<h1>{{ cliente.nombre }}</h1>
+<p><strong>Correo:</strong> {{ cliente.correo }}</p>
+<p><strong>Activo:</strong> {{ cliente.activo|yesno:"Sí,No" }}</p>
+<p><strong>Fecha de Registro:</strong> {{ cliente.fecha_registro|date:"d/m/Y" }}</p>
+
+<hr>
+
+<h2>Pedidos</h2>
+<ul>
+    {% for ped in pedidos %}
+        <li>
+            <strong>Pedido {{ ped.id }}</strong> - {{ ped.fecha|date:"d/m/Y" }} <br>
+            Estado: {{ ped.estado }}
+            <ul>
+                {% for prod in ped.productos.all %}
+                    <li>{{ prod.nombre }} - ${{ prod.precio|floatformat:0 }}</li>
+                {% empty %}
+                    <li>No hay productos en este pedido</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% empty %}
+        <li>No hay pedidos para este cliente</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'tienda:modificar_cliente' cliente.pk %}" class="btn">Modificar Cliente</a>
+{% endblock %}
