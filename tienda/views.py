@@ -35,7 +35,6 @@ def detalle_cliente(request, pk):
     return render(request, "tienda/detalle_cliente.html", {"cliente": cliente, "pedidos": pedidos })
 
 def crear_producto(request):
-    print(request)
     if request.method == 'POST':
         form = ProductoForm(request.POST)
         if form.is_valid():
@@ -44,3 +43,15 @@ def crear_producto(request):
     else:
         form = ProductoForm()
     return render(request, 'tienda/crear_producto.html', {'form': form})
+
+def modificar_producto(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        form = ProductoForm(request.POST, instance=producto)
+        if form.is_valid():
+            form.save()
+            return redirect('tienda:lista_productos')
+    else:
+        form = ProductoForm(instance=producto)
+    
+    return render(request, 'tienda/modificar_producto.html', {'form': form, 'producto': producto})

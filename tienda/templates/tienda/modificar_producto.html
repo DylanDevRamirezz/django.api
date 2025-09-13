@@ -1,0 +1,12 @@
+{% extends "tienda/base.html" %}
+
+{% block title %} Modificar Producto {% endblock %}
+
+{% block content %}
+<h1>Modificar Producto: {{ producto.nombre }}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar cambios</button>
+</form>
+{% endblock %}
