@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render, get_object_or_404
 
-from tienda.forms import ProductoForm
+from tienda.forms import ClienteForm, ProductoForm
 from .models import Producto, Pedido, Cliente
 
 
@@ -45,6 +45,16 @@ def crear_producto(request):
         form = ProductoForm()
     return render(request, 'tienda/producto/crear_producto.html', {'form': form})
 
+def crear_cliente(request):
+    if request.method == 'POST':
+        form = ClienteForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('tienda:lista_clientes')
+    else:
+        form = ClienteForm()
+    return render(request, 'tienda/producto/crear_producto.html', {'form': form})
+
 def modificar_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -56,3 +66,10 @@ def modificar_producto(request, pk):
         form = ProductoForm(instance=producto)
     
     return render(request, 'tienda/producto/modificar_producto.html', {'form': form, 'producto': producto})
+
+def eliminar_producto(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        producto.delete()
+        return redirect("tienda:lista_productos")
+    return render(request, "tienda/eliminar_producto.html", {"producto": producto})

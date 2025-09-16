@@ -1,5 +1,5 @@
 from django import forms
-from .models import Producto
+from .models import Cliente, Producto
 
 class ProductoForm(forms.ModelForm):
     class Meta: 
@@ -18,4 +18,17 @@ class ProductoForm(forms.ModelForm):
                 'min': 0,
                 'placeholder': 'Precio del producto'
             })
+        }
+
+class ClienteForm(forms.ModelForm):
+    class Meta: 
+        model = Cliente
+        fields = ['nombre','descripcion', 'precio']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'placeholder': 'Nombre del Cliente'
+            }),
+            'correo': forms.TextInput(attrs={
+                'placeholder': 'Correo electronico del Cliente'
+            }),
         }
