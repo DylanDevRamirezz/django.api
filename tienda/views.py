@@ -1,6 +1,8 @@
 from django.shortcuts import redirect, render, get_object_or_404
+from django.db import transaction
+from django.db.models import Sum, F
 
-from tienda.forms import ClienteForm, ProductoForm
+from tienda.forms import ClienteForm, ProductoForm, PedidoSimpleForm, PedidoItemFormSet
 from .models import Producto, Pedido, Cliente
 
 
@@ -17,17 +19,19 @@ def lista_clientes(request):
     return render(request, "tienda/cliente/lista_clientes.html", {"clientes": clientes})
 
 def lista_pedidos(request):
-    pedido = Pedido.objects.select_related("cliente").prefetch_related(
-        "productos").order_by("-fecha")
-    return render(request, "tienda/pedido/lista_pedidos.html", {"pedido": pedido})
+    pedidos = Pedido.objects.annotate(
+        total_productos=Sum("items__cantidad"),
+        total_precio=Sum(F("items__cantidad") * F("items__precio_unitario"))
+    )
+    return render(request, "tienda/pedido/lista_pedidos.html", {"pedido": pedidos})
+
+def detalle_pedido(request, pk):
+    pedido = get_object_or_404(Pedido.objects.select_related("cliente").prefetch_related("productos"), pk=pk )
+    return render(request, "tienda/detalle_pedido.html", {"pedido": pedido})
 
 def detalle_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     return render(request, "tienda/producto/detalle_producto.html", {"producto": producto})
-
-def detalle_pedido(request, pk):
-    pedido = get_object_or_404(Pedido.objects.select_related("cliente")).prefetch_related("productos", pk=pk)
-    return render(request, "tienda/detalle_pedido.html", {"pedido": pedido})
 
 def detalle_cliente(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
@@ -73,3 +77,46 @@ def eliminar_producto(request, pk):
         producto.delete()
         return redirect("tienda:lista_productos")
     return render(request, "tienda/eliminar_producto.html", {"producto": producto})
+
+@transaction.atomic
+def crear_pedido_items(request):
+    if request.method == "POST":
+        pedido_form = PedidoSimpleForm(request.POST)
+        if pedido_form.is_valid():
+            pedido = pedido_form.save()
+            formset = PedidoItemFormSet(request.POST, instance=pedido)
+            if formset.is_valid():
+                formset.save()
+                return redirect("tienda:detalle_pedido", pk=pedido.pk)
+        else:
+            # Si el pedido no es válido...
+            pedido = pedido()
+            format = PedidoItemFormSet (request.POST, instance=pedido)
+    else:
+            pedido_form = PedidoSimpleForm()
+            formset = PedidoItemFormSet()
+        
+    return render (request, "tienda/crear_pedido_items.html", {
+            "pedido_form": pedido_form,
+            "formset": formset,
+        })
+
+@transaction.atomic
+def editar_pedido_items (request, pk):
+    Pedido = get_object_or_404 (Pedido, pk=pk)
+    if request.method == "POST":
+        Pedido_form = PedidoSimpleForm (request.POST, instance=Pedido)
+        formset = PedidoItemFormSet (request.POST, instance=Pedido)
+        if Pedido_form.is_valid () and formset.is_valid():
+            Pedido_form.save()
+            formset.save()
+            return redirect("tienda:detalle_pedido", pk=Pedido)
+        else:
+            Pedido_form= PedidoSimpleForm (instance=Pedido)
+            fromset = PedidoItemFormSet (instance=Pedido)
+            
+            return redirect (request, "tienda/editar_pedido_items.html", {
+                "Pedido": Pedido,
+                "Pedido_form": Pedido_form,
+                "formset": formset,
+            })

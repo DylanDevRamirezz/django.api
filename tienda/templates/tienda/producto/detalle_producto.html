@@ -4,5 +4,8 @@
 <h1>{{producto.nombre}} </h1>
 <p>{{producto.descripcion}} </p>
 <p><strong>precio:</strong>${{producto.precio|floatformat:0}} </p>
-<a href="{% url 'tienda:modificar_producto' producto.pk%}" class="btn">Modificar</a>
+<p>
+    <a href="{% url 'tienda:modificar_producto' producto.pk%}" class="btn">Modificar producto</a>
+    <a href="{% url 'tienda:eliminar_producto' producto.pk%}" class="btn">Eliminar producto</a>
+</p>
 {%endblock%}
