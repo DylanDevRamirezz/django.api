@@ -70,7 +70,7 @@ class Pedido(models.Model):
     ]
 
     cliente = models.ForeignKey(
-        Cliente, on_delete=models.CASCADE, related_name="pedidos"
+        Cliente, on_delete=models.CASCADE, related_name="cliente"
     )
     estado = models.CharField(max_length=10, choices=ESTADOS, default="CREADO")
     fecha = models.DateTimeField(auto_now_add=True)

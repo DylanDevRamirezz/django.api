@@ -25,7 +25,7 @@ class ProductoForm(forms.ModelForm):
 class ClienteForm(forms.ModelForm):
     class Meta: 
         model = Cliente
-        fields = ['nombre','descripcion', 'precio']
+        fields = ['nombre']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'placeholder': 'Nombre del Cliente'

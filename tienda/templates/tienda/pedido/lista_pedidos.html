@@ -4,6 +4,7 @@
 
 {%block content%}
 <h1>Pedidos</h1>
+<p><a href="{% url 'tienda:crear_pedido_items' %}" class='btn'>Nuevo pedido</a></p>
 <ul>
     {%for ped in Pedidos %}
     <li>
@@ -13,6 +14,7 @@
             -Estado:{{ped.estado}}
             -Fecha:{{ped.fecha|date:"d/m/Y"}}
             -Productos: {{ped.productos.count}}
+            -TOTAL: ${{ ped.total_precio|default:"0.0" }}
         </a>
     </li>
     {%empty%}

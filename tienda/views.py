@@ -1,10 +1,14 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.db import transaction
 from django.db.models import Sum, F
+# tienda/views.py
+from rest_framework import viewsets
+from .models import Producto
+from .serializers import ProductoSerializer
 
 from tienda.forms import ClienteForm, ProductoForm, PedidoSimpleForm, PedidoItemFormSet
+from tienda.serializers import ProductoSerializer
 from .models import Producto, Pedido, Cliente
-
 
 def home(request):
     # render () Recibe: request, ruta  template, contexto(Diccionario)
@@ -103,20 +107,24 @@ def crear_pedido_items(request):
 
 @transaction.atomic
 def editar_pedido_items (request, pk):
-    Pedido = get_object_or_404 (Pedido, pk=pk)
+    pedido = get_object_or_404 (Pedido, pk=pk)
     if request.method == "POST":
-        Pedido_form = PedidoSimpleForm (request.POST, instance=Pedido)
-        formset = PedidoItemFormSet (request.POST, instance=Pedido)
-        if Pedido_form.is_valid () and formset.is_valid():
-            Pedido_form.save()
+        pedido_form = PedidoSimpleForm (request.POST, instance=pedido)
+        formset = PedidoItemFormSet (request.POST, instance=pedido)
+        if pedido_form.is_valid () and formset.is_valid():
+            pedido_form.save()
             formset.save()
-            return redirect("tienda:detalle_pedido", pk=Pedido)
-        else:
-            Pedido_form= PedidoSimpleForm (instance=Pedido)
-            fromset = PedidoItemFormSet (instance=Pedido)
+            return redirect("tienda:detalle_pedido", pk=pedido.pk)
+    else:
+        pedido_form= PedidoSimpleForm (instance=pedido)
+        formset = PedidoItemFormSet (instance=pedido)
             
-            return redirect (request, "tienda/editar_pedido_items.html", {
-                "Pedido": Pedido,
-                "Pedido_form": Pedido_form,
-                "formset": formset,
-            })
+    return redirect (request, "tienda/editar_pedido_items.html", {
+        "pedido": pedido,
+        "pedido_form": pedido_form,
+        "formset": formset,
+    })
+
+class ProductoViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer

@@ -1,5 +1,12 @@
 from django.urls import path
 from . import views
+# tienda/urls.py
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ProductoViewSet
+
+router = DefaultRouter()
+router.register(r'productos', ProductoViewSet)
 
 app_name = 'tienda'
 
@@ -14,4 +21,12 @@ urlpatterns = [
     path('productos/nuevo/', views.crear_producto, name='crear_producto'),
     path('productos/<int:pk>/modificar/', views.modificar_producto, name='modificar_producto'),
     path('productos/<int:pk>/eliminar/', views.eliminar_producto, name='eliminar_producto'),
+
+    path("pedidos/nuevo-items/", views.crear_pedido_items, name="crear_pedido_items"),
+    path("pedidos/<int:pk>/editar-items/", views.editar_pedido_items, name="editar_pedido_items"),
+
+
+
+    #API 
+    path('api/', include(router.urls)),
 ]
