@@ -1,0 +1,29 @@
+{ % extends "tienda/base.html" %}
+{ % block title %} Buscar Productos { % endblock %}
+
+{ % block content %}
+<h1>Buscar Productos</h1>
+
+<form method="get">
+    <input type="text" name="q" placeholder="Ingrese término de búsqueda">
+    <button type="submit" class="btn">Buscar</button>
+</form>
+
+{% if q %}
+<h3>Resultados para "{{ q }}":</h3>
+<ul>
+    {% for r in resultados %}
+    <li>
+        <a href="{% url 'tienda:detalle_producto' r.id %}">
+            {{ r.nombre }} - {{ r.precio }}
+        </a><br>
+        <small>{{ r.descripcion }}</small>
+        <em>score: {{ r.score|floatformat:3 }}</em>
+    </li>
+    {% empty %}
+    <li>No se encontraron productos.</li>
+    {% endfor %}
+</ul>
+
+{% endif %}
+{ % endblock % }

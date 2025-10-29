@@ -26,7 +26,7 @@ urlpatterns = [
     path("pedidos/<int:pk>/editar-items/", views.editar_pedido_items, name="editar_pedido_items"),
 
 
-
+    path('buscar/', views.buscar_view, name='buscar'),
     #API 
     path('api/', include(router.urls)),
 ]

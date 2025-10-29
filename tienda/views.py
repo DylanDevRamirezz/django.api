@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.db import transaction
 from django.db.models import Sum, F
+from django.views.decorators.http import require_GET
 # tienda/views.py
 from rest_framework import viewsets
 from .models import Producto
@@ -9,6 +10,8 @@ from .serializers import ProductoSerializer
 from tienda.forms import ClienteForm, ProductoForm, PedidoSimpleForm, PedidoItemFormSet
 from tienda.serializers import ProductoSerializer
 from .models import Producto, Pedido, Cliente
+from core.ia.buscador import buscar_productos
+
 
 def home(request):
     # render () Recibe: request, ruta  template, contexto(Diccionario)
@@ -31,7 +34,18 @@ def lista_pedidos(request):
 
 def detalle_pedido(request, pk):
     pedido = get_object_or_404(Pedido.objects.select_related("cliente").prefetch_related("productos"), pk=pk )
-    return render(request, "tienda/detalle_pedido.html", {"pedido": pedido})
+    items = pedido.items.all()
+    totalUnidades = sum(item.cantidad for item in items)
+    totalPedido = sum(item.cantidad * item.precio for item in items)
+    for it in items:
+        it.subtotal = it.cantidad * it.precio_unitario
+    return render(request, "tienda/detalle_pedido.html", 
+                  {
+                      "pedido": pedido,
+                      "items": items,
+                      "totalUnidades": totalUnidades,
+                      "totalPedido": totalPedido
+                   })
 
 def detalle_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
@@ -128,3 +142,12 @@ def editar_pedido_items (request, pk):
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
+    
+@require_GET
+def buscar_view(request):
+    q = request.GET.get("q", "")
+    if q: 
+        resultados = buscar_productos(q)
+    else: 
+        resultados = []
+    return render(request, "tienda/buscar.html", {"q": q, "resultados": resultados})
