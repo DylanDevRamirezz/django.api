@@ -13,6 +13,7 @@ app_name = 'tienda'
 urlpatterns = [
     path('', views.home, name='home'),
     path('productos/', views.lista_productos, name='lista_productos'),
+    path('productos/download', views.exportar_productos_csv, name='descargar_productos_csv'),
     path('pedidos/', views.lista_pedidos, name='lista_pedidos'),
     path('clientes/', views.lista_clientes, name='lista_clientes'),
     path('clientes/nuevo/', views.crear_cliente, name='crear_cliente'),

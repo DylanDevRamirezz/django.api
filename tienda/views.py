@@ -1,3 +1,5 @@
+import csv
+from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.db import transaction
 from django.db.models import Sum, F
@@ -151,3 +153,16 @@ def buscar_view(request):
     else: 
         resultados = []
     return render(request, "tienda/buscar.html", {"q": q, "resultados": resultados})
+
+
+def exportar_productos_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="productos.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Nombre', 'Precio', 'Descripcion'])  # Encabezados de tu modelo
+
+    for producto in Producto.objects.all():
+        writer.writerow([producto.id, producto.nombre, producto.precio, producto.descripcion])
+
+    return response
